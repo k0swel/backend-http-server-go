@@ -82,9 +82,30 @@ func (s *WebServer_s) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		utils.Logger.Printf("Пользователь %s неверно ввёл пароль.\n", payload.Email)
 		return
 	}
+
+	// --- Установка куки и сохранение сессии в memcache ---
+	cookie := http.Cookie{
+		Name:     "session-id",
+		Value:    webserver_utils.GenerateSessionCookie(),
+		Path:     "/",
+		MaxAge:   int(24 * 3600),
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	if err := s.Memcache_client.Set(&memcache.Item{
+		Key:        cookie.Value,
+		Value:      []byte(user.Email),
+		Expiration: 24 * 3600,
+	}); err != nil {
+		utils.Logger.Printf("Memcache Set: %v", err)
+	}
+
 	webserver_utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"status":  "ok",
-		"message": "authorization is successful"})
+		"message": "authorization is successful",
+	})
 }
 
 /*	---------Получение информации об аккаунте--------------- */
