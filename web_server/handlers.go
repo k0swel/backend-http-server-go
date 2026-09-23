@@ -57,21 +57,6 @@ func (s *WebServer_s) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 /* Обработчик события авторизации*/
 func (s *WebServer_s) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session-id")
-	if err == http.ErrNoCookie {
-		utils.Logger.Printf("Клиент (%s) не направил куки. Будет возвращён 301 /\n", r.Header.Get("X-Real-IP"))
-		http.Redirect(w, r, fmt.Sprintf("https://%s", utils.GetEnv()["DOMAIN_NAME"]), 301)
-		return
-	} else if err == nil {
-		_, err := s.Memcache_client.Get(cookie.Value)
-		if err == memcache.ErrCacheMiss {
-			utils.Logger.Printf("Сеанс пользователя (%s) истёк. Перенаправляю его на страницу авторизации\n", r.Header.Get("X-Real-IP"))
-			return
-		}
-		http.Redirect(w, r, fmt.Sprintf("https://%s/account", utils.GetEnv()["DOMAIN_NAME"]), 301)
-		return
-	}
-
 	var payload users.User
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		webserver_utils.WriteError(w, http.StatusBadRequest, "invalid Payload: ")
