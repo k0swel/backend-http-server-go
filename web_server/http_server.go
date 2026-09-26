@@ -45,6 +45,7 @@ func (s *WebServer_s) Run() error {
 	s.Handle("POST", "/api/v1/register", s.RegisterHandler)
 	s.Handle("POST", "/api/v1/auth", s.LoginHandler)
 	s.Handle("GET", "/api/v1/account", s.GetAccountHandler)
+	s.Handle("GET", "/api/v1/hostname", s.GetBackendHostname)
 	return s.server.ListenAndServe()
 }
 

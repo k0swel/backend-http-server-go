@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"web_server_go/users"
 	"web_server_go/utils"
 	webserver_utils "web_server_go/web_server/utils"
@@ -134,4 +135,10 @@ func (s *WebServer_s) GetAccountHandler(w http.ResponseWriter, r *http.Request) 
 		webserver_utils.WriteJSON(w, 200, map[string]string{"first_name": user.First_name, "last_name": user.Last_name, "father_name": user.Father_name})
 		return
 	}
+}
+
+func (s *WebServer_s) GetBackendHostname(w http.ResponseWriter, r *http.Request) {
+	hostname, _ := os.Hostname()
+	webserver_utils.WriteJSON(w, 200, map[string]string{"hostname": hostname})
+	return
 }
